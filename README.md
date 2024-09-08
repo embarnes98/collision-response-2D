@@ -1,2 +1,2 @@
-# collision-response-2D
-Implementation of collision detection algorithms in 2D.
+# intersection-response-2D
+Implementation of intersection detection algorithms in 2D.

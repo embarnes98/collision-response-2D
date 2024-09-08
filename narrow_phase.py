@@ -38,7 +38,7 @@ def line_case(simplex):
 
 
 def triangle_case(simplex):
-    """Calculates whether the current 3-point simplex represents a collision,
+    """Calculates whether the current 3-point simplex represents an intersection,
     and if not, the next search direction.
 
     Args:
@@ -46,8 +46,8 @@ def triangle_case(simplex):
             being checked for intersection.
 
     Returns:
-        tuple (bool, pygame.Math.Vector2): Whether a collision has been
-            detected. Return also the next search direction if a collision was
+        tuple (bool, pygame.Math.Vector2): Whether an intersection has been
+            detected. Return also the next search direction if an intersection was
             not detected, otherwise None.
     """
     C, B, A = simplex
@@ -64,11 +64,11 @@ def triangle_case(simplex):
             del simplex[1]
             return False, ACperp
         else:
-            return True, None  # Collision detected
+            return True, None  # intersection detected
 
 
 def handle_simplex(simplex):
-    """Returns whether the current simplex represents a collision, and if not,
+    """Returns whether the current simplex represents an intersection, and if not,
         the next search direction.
 
     Args:
@@ -84,27 +84,25 @@ def handle_simplex(simplex):
     return triangle_case(simplex)
 
 
-def gjk_collision(body1, body2):
-    """Implementation of the GJK algorithm to detect collision between two
+def gjk_intersection(shape1, shape2):
+    """Implementation of the GJK algorithm to detect intersection between two
     convex bodies.
 
     Args:
-        body1 (Body): first body tested for intersection.
-        body2 (Body): second body tested for intersection.
+        shape1 (Shape): first shape tested for intersection.
+        shape2 (Shape): second shape tested for intersection.
     Returns:
         bool: whether the two bodies are intersecting.
     """
-    dir = Vector2.normalize(
-        body2.centroid - body1.centroid
-    ) # Initial arbitrary direction
-    simplex = [body1.support(dir) - body2.support(-dir)]
+    # Initial arbitrary direction
+    dir = Vector2.normalize(shape2.centroid - shape1.centroid)
+    simplex = [shape1.support(dir) - shape2.support(-dir)]
     dir = -simplex[0]  # New direction is towards the origin
     while True:
-        A = body1.support(dir) - body2.support(-dir)
+        A = shape1.support(dir) - shape2.support(-dir)
         if A.dot(dir) < 0:
-            return False  # No collision
+            return False  # No intersection
         simplex.append(A)
-        # Handle the simplex
-        handled_simplex, dir = handle_simplex(simplex)
+        handled_simplex, dir = handle_simplex(simplex) # Handle the simplex
         if handled_simplex:
             return True

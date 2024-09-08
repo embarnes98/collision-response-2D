@@ -1,9 +1,23 @@
 """Utils module."""
+from broad_phase import intersecting_shapes
 
-def resolve_collision(body1, body2):
-    """ Resolve the collision by separating the shapes. """
-    separation_vector = (body1.velocity - body2.velocity).normalize() * 5
-    body1.vertices = [v + separation_vector for v in body1.vertices]
-    body2.vertices = [v - separation_vector for v in body2.vertices]
-    body1.velocity = -body1.velocity
-    body2.velocity = -body2.velocity
+
+def spawn_shapes(shapes, allow_intersections=False):
+    # Initially assume random shape placement has caused intersections
+    if allow_intersections:
+        for shape in shapes:
+            shape.spawn()
+        return
+    intersections = True 
+    while (intersections):
+        intersections = False
+        for i, shape in enumerate(shapes):
+            # Update shape's starting position/velocity
+            shape.spawn()
+            for other_shape in shapes[i+1:]:
+                while (intersecting_shapes(shape, other_shape)):
+                    intersections = True
+                    # Reset the shape's starting data until it no longer
+                    # intersects its neighbour
+                    shape.spawn()
+
